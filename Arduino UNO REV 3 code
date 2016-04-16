@@ -1,0 +1,202 @@
+#include <Wire.h> //motor
+#include<Adafruit_MotorShield.h> //motor
+#include "utility/Adafruit_MS_PWMServoDriver.h" //motor
+#include<Servo.h> //RC Servo
+
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+Servo myservo;
+
+Adafruit_DCMotor *myMotor = AFMS.getMotor(1);
+Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);
+//int pos = 90;
+const int pingPin = 7;
+const int danger = 10;
+long duration, duration1, duration2;
+//int lookLeft, lookRight;
+
+void setup() 
+{
+  // put your setup code here, to run once:
+  
+  Serial.begin(9600);
+  Serial.println("Robot Project");
+
+  AFMS.begin();
+
+  myMotor->setSpeed(75);
+  myMotor->run(FORWARD);
+  myMotor->run(BACKWARD);
+  myMotor->run(RELEASE);
+  myservo.attach(9);
+  myservo.write(70);
+  myOtherMotor->run(FORWARD);
+  myOtherMotor->run(RELEASE);
+  myOtherMotor->run(BACKWARD);
+}
+  
+void loop() 
+{
+  //uint8_t i;
+  //long duration, inches, cm;
+  //int Fwd = ping();
+  duration, duration1, duration2 = 0;
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPin, LOW);
+
+  pinMode(pingPin, INPUT);
+  duration2 = pulseIn(pingPin, HIGH);
+  duration2 = duration2 / 29 / 2;
+  //if(Fwd > danger)
+  if(duration2 > danger)
+  {    
+    myMotor -> run(FORWARD);
+    myMotor -> setSpeed(75);
+  }
+
+
+  //pinMode(pingPin, INPUT);
+  //duration = pulseIn(pingPin, HIGH);
+
+  //inches = microsecondsToInches(duration);
+
+  else
+  {    
+    myMotor ->setSpeed(0);
+    myservo.write(0);
+    delay(500);
+    //lookRight = ping();
+    pinMode(pingPin, OUTPUT);
+    digitalWrite(pingPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(pingPin, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(pingPin, LOW);
+
+    pinMode(pingPin, INPUT);
+    duration = pulseIn(pingPin, HIGH);
+    duration = duration/ 29 /2;
+    delay(500);
+    myservo.write(160);
+    delay(700);
+    //lookLeft = ping();
+    pinMode(pingPin, OUTPUT);
+    digitalWrite(pingPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(pingPin, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(pingPin, LOW);
+
+    pinMode(pingPin, INPUT);
+    duration1 = pulseIn(pingPin, HIGH);
+    duration1 = duration1 / 29 / 2;
+    delay(500);
+    myservo.write(70);
+    delay(100);
+    
+    //compare();
+    //if(lookLeft > lookRight)
+    if(duration > duration1)
+    {
+      myMotor -> run(RELEASE);
+      myMotor -> run(BACKWARD);
+      myMotor -> setSpeed(25);
+      delay(100);
+      myOtherMotor ->run(RELEASE);
+      myOtherMotor ->run(FORWARD);
+      myOtherMotor -> setSpeed(25);
+      delay(100);
+      myMotor -> run(RELEASE);
+      myMotor -> run(FORWARD);
+      myMotor -> setSpeed(75);
+      delay(500);
+    }
+    //else if(lookRight > lookLeft)
+    else if(duration1 > duration)
+    {
+      myMotor -> run(RELEASE);
+      myMotor -> run(BACKWARD);
+      myMotor -> setSpeed(25);
+      delay(100);
+      myOtherMotor -> run(RELEASE);
+      myOtherMotor -> run(BACKWARD);
+      myOtherMotor -> setSpeed(25);
+      myMotor -> run(RELEASE);
+      myMotor -> run(FORWARD);
+      myMotor -> setSpeed(75);
+      delay(500);
+    }
+    else  
+    {   
+      myMotor -> run(RELEASE);
+      myMotor -> run(BACKWARD);
+      myMotor -> setSpeed(25);
+      delay(1000);
+    }
+    
+    /* for(pos = 0; pos <= 165; pos += 1) //goes from 0 degrees to 180 degrees
+    {
+      //in steps of 1 degree
+      myservo.write(pos); //tell servo to go to position in variable 'pos'
+      delay(15); // waits 15ms for the servo to reach the position
+    }  
+    for(pos = 165; pos >= 0; pos -= 1) //goes from 180 degree to 0 degrees
+    {
+      myservo.write(pos); //tell servo to go to position in variable 'pos'
+      delay(15); //waits 15ms for the servo to reach the position
+    }*/
+  }
+  delay(100);
+}
+
+/*long ping()
+{
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPin, LOW);
+
+  pinMode(pingPin, INPUT);
+  duration = pulseIn(pingPin, HIGH);
+
+  return duration / 29 / 2;
+}
+void compare()
+{
+  if(lookLeft > lookRight)
+  {
+    myMotor -> run(BACKWARD);
+    myMotor -> setSpeed(25);
+    delay(100);
+    myOtherMotor ->run(FORWARD);
+    myOtherMotor -> setSpeed(25);
+    delay(100);
+    myMotor -> run(FORWARD);
+    myMotor -> setSpeed(75);
+    delay(500);
+  }
+  else if(lookRight > lookLeft)
+  {
+    myMotor -> run(BACKWARD);
+    myMotor -> setSpeed(25);
+    delay(100);
+    myOtherMotor -> run(BACKWARD);
+    myOtherMotor -> setSpeed(25);
+    myMotor -> run(FORWARD);
+    delay(100);
+    myMotor -> setSpeed(75);
+    delay(500);
+  }
+  else  
+  {   
+    myMotor -> run(BACKWARD);
+    myMotor -> setSpeed(25);
+    delay(1000);
+  }
+
+}*/
